@@ -17,7 +17,7 @@ N_ANOMALY   = 200    # anomaly events
 TICKS       = 1200   # simulation time steps
 
 os.makedirs("../data/sensor_logs", exist_ok=True)
-
+                                         
 # ── 1. Pressure Sensor Data ───────────────────────────────────────────────────
 # Model from Chapter 3: P(x,t) = P0 - kx - αt
 P0 = 50.0   # initial pressure (bar)

@@ -1,0 +1,89 @@
+table,column,dtype,unit,description
+sensor_readings,run_id,str,-,Unique run identifier <scenario>_R<nnnn>; joins to runs/nodes/events/vessel_tracks
+sensor_readings,scenario_id,str,-,Scenario code S01..S13 (see scenario_catalog)
+sensor_readings,tick,int,min,Simulation minute since run start (1 tick = 1 minute)
+sensor_readings,timestamp,datetime,WAT,Simulated local time of the reading
+sensor_readings,node_id,int,-,Sensor node index along the monitored section (0 = upstream end); joins to nodes
+sensor_readings,pressure_bar,float,bar,"Line pressure. Model P(x,t)=P0-kx-alpha*t + diurnal cycle + noise + event effects"
+sensor_readings,vib_rms,float,a.u.,"RMS of the 128-sample (0.256 s, 500 Hz) geophone/hydrophone window"
+sensor_readings,vib_peak,float,a.u.,Peak absolute amplitude of the window
+sensor_readings,vib_dom_freq_hz,float,Hz,Dominant spectral frequency of the window (excluding DC)
+sensor_readings,vib_band_drill,float,fraction,Spectral energy fraction in 35-62.5 Hz (drilling band)
+sensor_readings,vib_band_low,float,fraction,Spectral energy fraction in 3.9-15.6 Hz (flow/hum/anchor-drag band)
+sensor_readings,hydrocarbon_ppm,float,ppm,Dissolved/surface hydrocarbon concentration
+sensor_readings,water_temp_c,float,deg C,Water temperature
+sensor_readings,turbidity_ntu,float,NTU,Water turbidity
+sensor_readings,sensor_ok,int,0/1,0 while the node is in a fault block (dropout/stuck/drift) or at a spike tick
+sensor_readings,fault_type,category,-,none | dropout | stuck | drift | spike (sensor faults are NOT threats)
+sensor_readings,op_transient,int,0/1,1 while a lawful operational pressure transient (valve/pump) is active - hard negative
+sensor_readings,y_pressure,int,0/1,Ground truth: pressure anomaly footprint (node within 6.0 km of a leak/hot-tap pressure effect)
+sensor_readings,y_acoustic,int,0/1,Ground truth: drilling/tapping acoustic activity within 1.5 km
+sensor_readings,y_chemical,int,0/1,Ground truth: plume concentration > 0.3 ppm within 4.0 km (downstream)
+sensor_readings,y_env,int,0/1,Ground truth: non-malicious environmental disturbance within 3.0 km
+sensor_readings,y_any,int,0/1,OR of the four labels above
+sensor_readings,event_id,str,-,"Most recently started active event affecting this node-tick, else 'none'"
+sensor_readings,event_type,category,-,none | leak | hot_tap | cold_tap | spill | env_disturbance
+vessel_tracks,run_id,str,-,Run identifier
+vessel_tracks,scenario_id,str,-,Scenario code
+vessel_tracks,vessel_id,str,-,Vessel identifier unique within the run
+vessel_tracks,tick,int,min,Simulation minute of the report (every --ais-interval minutes)
+vessel_tracks,timestamp,datetime,WAT,Simulated local time
+vessel_tracks,latitude,float,deg,WGS84 latitude (AIS/radar-fused position incl. ~6 m jitter)
+vessel_tracks,longitude,float,deg,WGS84 longitude
+vessel_tracks,chainage_km,float,km,Position projected along the pipeline segment
+vessel_tracks,cross_track_km,float,km,Signed distance from the pipeline (left positive)
+vessel_tracks,speed_kn,float,knots,Speed over ground from successive positions
+vessel_tracks,heading_deg,float,deg,Course over ground (0 = north)
+vessel_tracks,ais_transmitting,int,0/1,0 = AIS switched off ('dark'); position then comes from radar fusion
+vessel_tracks,vessel_class,category,-,cargo_transit | fishing | licensed_barge | loitering_tapper | hit_and_run | mother_ship
+vessel_tracks,is_threat_vessel,int,0/1,Ground truth: vessel participates in illegal tapping
+vessel_tracks,event_id,str,-,"Tapping event the vessel is linked to, else 'none'"
+events,run_id,str,-,Run identifier
+events,scenario_id,str,-,Scenario code
+events,event_id,str,-,Event identifier
+events,event_type,category,-,leak | hot_tap | cold_tap | spill | env_disturbance
+events,parent_event_id,str,-,For a leak coupled to a spill: the spill event; else 'none'
+events,start_tick,int,min,First active minute
+events,end_tick,int,min,Last active minute (source stops)
+events,duration_min,int,min,Event duration
+events,start_time,datetime,WAT,Simulated start time
+events,starts_at_night,int,0/1,1 if start is between 19:00 and 06:00
+events,chainage_km,float,km,Event location along the pipeline segment
+events,latitude,float,deg,Event latitude
+events,longitude,float,deg,Event longitude
+events,severity,float,0-1,Relative severity
+events,nearest_node,int,-,Index of the closest sensor node
+events,threat_vessel_ids,str,-,Semicolon-separated vessel_ids linked to the event
+events,parameters,json,-,"Physical parameters used for the event (D, tau, C0, ...)"
+runs,run_id,str,-,Run identifier
+runs,scenario_id,str,-,Scenario code
+runs,seed,str,-,<global seed>-<scenario index>-<run index>: reproduces the run
+runs,pipeline_id,str,-,OpenStreetMap way id of the pipeline segment used
+runs,operator,str,-,Operator tag from OSM (may be 'unknown')
+runs,substance,str,-,Substance tag from OSM
+runs,location_type,str,-,underground | overground | underwater | ... from OSM
+runs,corridor_length_km,float,km,Length of the pipeline segment
+runs,monitored_start_km,float,km,Chainage where the sensor array starts
+runs,monitored_length_km,float,km,Length of the instrumented section
+runs,n_nodes,int,-,Number of sensor nodes
+runs,node_spacing_km,float,km,Spacing between nodes
+runs,n_ticks,int,min,Run length
+runs,start_time,datetime,WAT,Simulated start
+runs,rainy_season,int,0/1,April-October
+runs,noise_mult,float,-,Sensor noise multiplier
+runs,rain_fraction,float,-,Fraction of time with rain/storm
+runs,current_direction,int,-,+1/-1 water current along increasing chainage
+runs,n_events,int,-,Number of ground-truth events
+runs,n_vessels,int,-,Vessels simulated
+runs,n_threat_vessels,int,-,Illegal vessels simulated
+runs,n_faulty_nodes,int,-,Nodes with a sensor fault
+runs,P0_bar,float,bar,Pressure model parameter P0
+runs,k_bar_per_km,float,bar/km,Friction-loss parameter k
+runs,alpha_bar_per_min,float,bar/min,Decay parameter alpha
+nodes,run_id,str,-,Run identifier
+nodes,node_id,int,-,Node index
+nodes,latitude,float,deg,Node latitude (on the real pipeline geometry)
+nodes,longitude,float,deg,Node longitude
+nodes,chainage_km,float,km,Absolute chainage on the segment
+nodes,monitored_pos_km,float,km,Distance from start of monitored section
+nodes,has_fault,int,0/1,Node had a sensor fault during the run
